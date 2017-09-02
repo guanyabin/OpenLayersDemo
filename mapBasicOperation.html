@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>地图的基本操作</title>
+	<!-- 引入最基本的openlayers样式和js文件 -->
+	<link rel="stylesheet" href="../ol4.2/ol.css">
+	<script src="../ol4.2/ol.js"></script>
+	<!-- 这里还使用了bootstrap和jQuery,jQuery的位置放在最前面 -->
+	<script src="../jQuery/jQuery-1.11.1.min.js"></script>
+	<link rel="stylesheet" href="../bootstrap/bootstrap.css">
+	<script src="../bootstrap/bootstrap.min.js"></script>
+	<style>
+		#map {
+			width: 100%;
+			height: 640px;
+			position: relative;
+		}
+		#menu {
+			position: absolute;
+			float: left;
+			left: 10px;
+			bottom: 10px;
+			z-index: 2;
+
+		}
+		#menu button {
+			border: 0px;
+			border-radius: 3px;
+			background-color: #0099FF;
+			height: 30px;
+			color: white;
+			margin-left: 5px;
+		}
+		#menu button:hover {
+			background-color: #0166FF;
+		}
+		.tooltip-inner {
+			/*文本之间没有换行*/
+			white-space:nowrap;
+
+		}
+	</style>
+</head>
+<body>
+	<div id="map">
+		<div id="menu">
+			<button id="zoom-out">缩小</button>
+			<button id="zoom-in">放大</button>
+			<button id="panto">平移到武汉市</button>
+			<button id="restore">还原复位</button>
+		</div>
+	</div>
+	<!-- js代码放在这里，当代码较长时可以封装为js文件，使用 外部引用，提升页面加载速度-->
+
+	<script>
+	//首先实例化Map对象，加载地图
+		var map=new ol.Map({
+			target:'map',
+			layers:[
+				new ol.layer.Tile({
+					source:new ol.source.OSM()
+				})
+			],
+			//地图视图设置里面多个参数：初始中心点，初始显示级数，最大和最小显示级数，旋转角度
+			view:new ol.View({
+				center:[12950000,4860000],
+				zoom:8,
+				minZoom:6,
+				maxZoom:12,
+				rotation:Math.PI /6
+			})
+		});
+		//得到地图最初始的参数作为还原的使用，全局变量
+		//地图视图，当前缩放级数，中心点和旋转角度
+		var view=map.getView();
+		var zoom=view.getZoom();
+		var center=view.getCenter();
+		var rotate=view.getRotation();
+		//四个按钮对应的点击事件
+		//还原初始位置
+		$("#restore").click(function(){
+			view.setZoom(zoom);
+			view.setCenter(center);
+			view.setRotation(rotate);
+		});
+		//缩小：zoom-1，缩放级数减去1,放大就是加上1
+		$("#zoom-out").click(function(){
+			var view=map.getView();
+			var zoom=view.getZoom();
+			view.setZoom(zoom-1);
+		});
+		$("#zoom-in").click(function(){
+			var view=map.getView();
+			var zoom=view.getZoom();
+			view.setZoom(zoom+1);
+		});
+		//平移到武汉市，需要得到武汉市的xy坐标
+		$("#panto").click(function(){
+			var view=map.getView();
+			var center=ol.proj.fromLonLat([114.31667,30.51667]);
+			view.setCenter(center);
+		});
+		//为内置的缩放和旋转控件设定tooltip提示信息
+		$(".ol-zoom-in, .ol-zoom-out").tooltip({
+			placement:'right'
+		});
+		$(".ol-rotate-reset, .ol-attribution button[title]").tooltip({
+			placement:'left'
+		});
+		// 更改元素的属性值
+		// $(".ol-rotate-reset").attr("data-original-title","Due north ");
+	</script>
+</body>
+</html>
