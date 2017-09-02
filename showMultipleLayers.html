@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>自定义加载多个图层</title>
+	<link rel="stylesheet" href="../ol4.2/ol.css">
+	<script src="../ol4.2/ol.js"></script>
+	<style>
+		body,html,div,p,ul,li,img,iframe {
+			border: none;
+			padding: 0px;
+			margin: 0px;
+			font-size: 14px;
+			font-family: "微软雅黑";
+		}
+		#map {
+			width: 100%;
+			height: 100%;
+			position: relative;
+
+		}
+		#layerControl {
+			position: absolute;
+			top: 5px;
+			max-width: 220px;
+			max-height: 200px;
+			right: 5px;
+			z-index: 2001;
+			border: 10px solid #000;
+			border-radius: 10px;
+			color: #fff;
+			background-color: #4e4c4a;
+
+		}
+		#layerControl .title {
+			font-size: 15px;
+			font-weight: bold;
+			margin: 10px;
+		}
+		#layerTree  {
+			-moz-list-style: none;
+			-webkit-list-style:none;
+			list-style: none;
+			margin: 5px 10px;
+		}
+	</style>
+</head>
+<body>
+	<div id="map">
+		<div id="layerControl" class="layerControl">
+			<div class="title">
+				<label for="">图层列表</label>
+			</div>
+			<ul id="layerTree" class="layerTree"></ul>
+		</div>
+	</div>
+	<script>
+		
+		// 定义三个数组，分别存放图层，图层名称和图层可见属性
+		var layer=new Array();
+		var layerName=new Array();
+		var layerVisibility=new Array();
+		// 加载图层列表并显示函数：两个参数，ul的ID和map对象
+		function loadLayer(map,id){
+			var layerTree=document.getElementById(id);
+			//map是全局变量，调用方法得到所有图层
+			var layers=map.getLayers();
+			// 进行for循环，依次获取图层的索引号，名称和可见属性的值，并存放前面声明好的三个数组中
+			for(var i=0;i<layers.getLength();i++){
+				layer[i]=layers.item(i);
+				layerName[i]=layer[i].get('name');
+				layerVisibility[i]=layer[i].getVisible();
+				//下面开始创建li标签，以及复选框和label
+				var li=document.createElement("li");
+				var input=document.createElement("input");
+				var label=document.createElement("label");	
+				//设定input标签的type和其他属性,它是li的子节点
+				input.type="checkbox";
+				input.className="layers";
+				li.appendChild(input);
+				//复选框是否选中取决于数组layerVisibility的属性值知否存在
+				if(layerVisibility[i]){
+					//修改状态为true，即为选中状态
+					input.checked=true;
+				}
+				//选中和不选对应图层显示和消失，此处也有一个监听事件，改变图层显示效果,两个参数，复选框和图层数组
+				addChangeEvent(input,layer[i]);
+				//设定label的属性和值，它也是li的子节点
+				label.className="layer";
+				//图层名称存在数组layerName中，名称在label标签中显示，需要创建函数，进行赋值
+				setLayerName(label,layerName[i]);
+				li.appendChild(label);
+				//最后：向ul中添加li子节点
+				layerTree.appendChild(li);
+				
+			}
+		}
+			// 动态设置显示的图层名称
+			function setLayerName(element,text){
+				if(typeof element.textContent=="string"){
+					element.textContent=text;
+				}else{
+					element.innerHTML=text;
+				}
+			}
+			//动态监听复选框是否选中,点击事件
+			 function addChangeEvent(element,layer){
+			 	element.onclick=function(){
+			 		if(element.checked){
+			 			layer.setVisible(true);
+			 		}else {
+			 			layer.setVisible(false);
+			 		}
+			 	}
+
+			 }
+
+
+			 //首先实例化Map对象(地图容器)，用于加载地图
+		var map=new ol.Map({
+			target:"map",
+			//一共使用了四个图层
+			layers:[
+				new ol.layer.Tile({
+					source: new ol.source.OSM(),
+					name:'世界地图（OSM瓦片）'
+				}),
+
+				// ol.js4.2已经没有这个方法了，替代方法还没有找到！
+				//new ol.layer.Tile({
+    // 				source: new ol.source.MapQuest({layer: 'sat'}),
+    // 				name:'世界地图（MapQuest影像）'
+  		// 		}),
+				new ol.layer.Vector({
+					source:new ol.source.Vector({
+						url:'../data/geojson/countries.geojson',
+						format: new ol.format.GeoJSON()
+					}),
+					name:"国界（json格式的矢量图）"
+				}),
+				new ol.layer.Vector({
+					source: new ol.source.Vector({
+						url:'../data/kml/2012_Earthquakes_Mag5.kml',
+						format: new ol.format.KML({
+							extractStyles:false//?????
+						})
+					}),
+					name:'点（KML格式矢量图）'
+				})
+			],
+			view:new ol.View({
+				center:[0,0],
+				zoom:2
+			})
+		});
+		//最后调用加载地图的方法
+		loadLayer(map,"layerTree");
+		
+	</script>
+</body>
+</html>
