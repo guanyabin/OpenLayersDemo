@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>加载地图练习</title>
+	<link rel="stylesheet" href="../ol4.2/ol.css">
+	<script type="text/javascript" src="../ol4.2/ol.js">
+	</script>
+	<script>
+	 	function addMap(){
+	 		//内容一：方法1，简单的创建Map对象。
+	 		/*var map=new ol.Map({
+	 			target:'map',
+	 			layers:[
+	 				new ol.layer.Tile({
+	 					source:new ol.source.OSM()
+	 				})
+	 			],
+	 			view:new ol.View({
+	 				center:[0,0],
+	 				zoom:2
+	 			})
+	 		});*/
+	 		//方法2：实例化map对象用地图于加载
+	 		var map=new ol.Map({
+	 			//div的ID属性值，可以是单引号也可以是双引号
+	 			target:"map",
+	 			layers:[], 
+	 			 //地图容器里面需要加载的图层，初始化为空
+	 			view:new ol.View({ 
+	 			//地图视图的设置，两个参数，地图中心点center和地图显示级数zoom，为2级
+	 				center:[0,0],
+	 				zoom:2
+	 			})
+	 			//在({})内部的({})不需要在结尾加任何结束符号
+	 		});
+	 		//实例化OSM瓦片地图的瓦片图层，只有一个参数就是数据源
+	 		var tileLayer=new ol.layer.Tile({
+	 			source:new ol.source.OSM()
+	 		});
+	 		//调用map的加载地图方法加载map对象
+	 		map.addLayer(tileLayer);
+	 		//内容二：添加控件。首先实例化控件，之后调用map对象添加这些控件
+	 		//缩放控件Zoom，旋转Rotate和图层数据源属性控件Attribution,缩放滑块 ZoomSlider,按钮缩放到特定范围控件ZoomToExtent
+	 		var zoom=new ol.control.Zoom();
+	 		var rotate=new ol.control.Rotate();
+	 		var attribution=new ol.control.Attribution();
+	 		var zoomSlider=new ol.control.ZoomSlider();
+	 		//设定地图范围大概是北京，单击E控件地图缩放到北京。
+	 		var zoomToExtent=new ol.control.ZoomToExtent({
+	 			extent:[
+	 			13100000,4290000,
+	 			13200000,5210000
+
+	 			]
+	 		});
+
+	 		map.addControl(zoom);
+	 		map.addControl(rotate);
+	 		map.addControl(attribution);
+	 		map.addControl(zoomSlider);
+	 		map.addControl(zoomToExtent);
+
+
+	 	}
+	 </script>
+	 <style>
+	 	#map {
+	 		width: 100%;
+	 		height: 100%;
+	 		position: absolute;
+	 		background-image: url('../images/logo.jpg');
+	 		
+	 	}
+	 	/*设定控件样式，缩放滑块，调整到合适的位置*/
+	 	#map .ol-zoom .ol-zoom-out {margin-top: 204px;}
+	 	#map .ol-zoomslider {background-color: transparent;top: 2.3em;}
+	 	#map .ol-touch .ol-zoom .ol-zoom-out {margin-top: 212px;}
+	 	#map .ol-touch .ol-zoomslider {top:2.75em;}
+	 	#map .ol-zoom-extent {margin-top: 210px;}
+	 	#map .ol-zoom-in .ol-has-tooltip:hover [role=tooltip],
+	 	#map .ol-zoom-in .ol-has-tooltip:focus [role=tooltip] {top: 3px;  }
+		#map .ol-zoom-out .ol-has-tooltip:hover [role=tooltip],
+		#map .ol-zoom-out .ol-has-tooltip:focus [role=tooltip] { top: 232px; }
+	 </style>
+</head>
+<body onload="addMap();">
+<div id="map"></div>
+	
+</body>
+</html>
